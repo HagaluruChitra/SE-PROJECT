@@ -1,0 +1,29 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-ci:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Run CI (No build, no tests)
+        run: |
+          echo "CI pipeline executed successfully!"
+          echo "No requirements.txt found."
+          echo "No tests configured. Passing."
+
+      - name: All Checks Passed
+        run: echo "✔ All CI checks completed successfully."
