@@ -1,29 +1,61 @@
-name: CI Pipeline
+name: Full Project CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
+      - develop
+      - feature/*
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  run-ci:
+  full-ci:
     runs-on: windows-latest
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # 2️⃣ Setup Node.js for frontend build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # 3️⃣ Install frontend dependencies
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: |
+          npm install
+
+      # 4️⃣ Build frontend
+      - name: Build React frontend
+        working-directory: ./frontend
+        run: |
+          npm run build
+
+      # 5️⃣ Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Run CI (No build, no tests)
+      # 6️⃣ Install backend dependencies
+      - name: Install Python dependencies
+        working-directory: ./backend
         run: |
-          echo "CI pipeline executed successfully!"
-          echo "No requirements.txt found."
-          echo "No tests configured. Passing."
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: All Checks Passed
-        run: echo "✔ All CI checks completed successfully."
+      # 7️⃣ Run pytest for backend
+      - name: Run backend tests
+        working-directory: ./backend
+        run: |
+          python -m pytest -q
+
+      # 8️⃣ Final status
+      - name: CI Completed
+        run: echo "CI Pipeline Successful ✔"
